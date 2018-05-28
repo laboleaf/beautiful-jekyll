@@ -1,5 +1,7 @@
 ---
 output: html_document
+title: Fitting Generalized Bayesian Factor Models with stan
+author: Lucas Deschamps
 bibliography: biblio_GBFM.bib
 ---
 

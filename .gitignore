@@ -6,6 +6,7 @@ _site
 #RData files
 .Rdata
 .RData
+
 # general
 .DS_Store
 Thumbs.db
