@@ -23,7 +23,7 @@ description: A lab of vegetation and ecosystem ecologists, with some member stro
 
 # List of links in the navigation bar
 navbar-links:
-  About Me: "aboutme"
+  About Us: "aboutme"
   Resources:
     - Researchgate page: "https://www.researchgate.net/lab/Laboratoire-decologie-fonctionnelle-vegetale-LEAF-Vincent-Maire"
   Author's home: "https://sites.google.com/site/vincentmairefolio/"
