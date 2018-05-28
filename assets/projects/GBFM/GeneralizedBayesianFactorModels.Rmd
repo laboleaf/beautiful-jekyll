@@ -1,9 +1,6 @@
 ---
-author: Lucas Deschamps
-title: Bayesian Factor Models with stan
 output: html_document
 bibliography: biblio_GBFM.bib
-date: 27/05/2018
 ---
 
 ```{r,echo=FALSE,results='asis'}
