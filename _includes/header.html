@@ -34,7 +34,7 @@
 			<h2 class="{{ include.type }}-subheading">{{ page.subtitle }}</h2>
 			{% endif %}
 		  {% endif %}
-		  <h2 class="author">{{ page.author }}</h2>
+		  <h3 class="author">{{ page.author }}</h3>
 		  
 		  {% if include.type == "post" %}
 		  <span class="post-meta">Posted on {{ page.date | date: "%B %-d, %Y" }}</span>
@@ -62,7 +62,7 @@
 		  {% endif %}
 		  <div class="post">
 		    
-		  <h2 class="author">{{ page.author }}</h2>
+		  <h3 class="author">{{ page.author }}</h3>
 		  
 		  {% if include.type == "post" %}
 		  <span class="post-meta">Posted on {{ page.date | date: "%B %-d, %Y" }}</span>
