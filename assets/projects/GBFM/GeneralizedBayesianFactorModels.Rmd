@@ -26,29 +26,29 @@ Multivariate datasets contain a lot of information on their own. Community matri
 By contrast, Factor Analysis aimed to discover underlying, abstract or unobserved causes of abundance patterns by exploiting the covariances between variables. The basic idea seems intuitive : covariances between variables (in that case, species), might be the consequence of common factors affecting simultaneously different species.
 
 # Problematic
-Modeling covariances between variables is a difficult task, because the number of parameters to estimate grows quadratically. Modelling the covariance matrix between 7 species implies to estimate 49 parameters, and for 80 species, 6400 parameters! The number of observations needed to achieve such task would quickly exceed the amount of data an ecologist can harvest in his own professional life...
-The aim of Factor Analysis is to estimate the underlying causes of the covariance of interest. As such, it allows to reduces drastically the number of dimensions to explore : covariances between our 80 species are possibly explained by 4 or 5 underlying environmental gradients, and we virtually do not need more than them to understand how a community matrix is structured.
-However classical Factor Analysis are not models. As such, they do not allow to discover the process generating data. They do not allow predictions, test of assumptions, comparisons. They can't afford dataset with complex structure, what multilevel models can do.
+Modelling covariances between variables is a difficult task, because the number of parameters to estimate grows quadratically. Modelling the covariance matrix between 7 species implies to estimate 49 parameters, and for 80 species, 6400 parameters! The number of observations needed to achieve such a task would quickly exceed the amount of data an ecologist can harvest in his own professional life...
+The aim of Factor Analysis is to estimate the underlying causes of the covariance of interest. As such, it allows to reduces drastically the number of dimensions to explore : covariances between 80 species are possibly explained by 4 or 5 underlying environmental gradients, and we virtually do not need more than them to understand how a community matrix is structured.
+However classical Factor Analysis are not models. As such, they do not allow to discover the process generating data. They do not allow predictions, test of assumptions, comparisons. They cannot afford dataset with complex structure, what multilevel models can do.
 
 # Latent variable models : Bayesian factor analysis
-The concepts behind factor analysis can however be used in model formulation, in the form of latent variables. In this kind of model, a *n x s* multivariate dataset **_Y_**, containing the abundance of species *s* at plot *n* can be decomposed into a  *n x d* Factor Matrix **_F_**, containing the score of factor *d* for each plot *p* and a *d x s* loading matrix **_L_** containing the coefficient linking each species to each factor.
+The concepts behind factor analysis can however be used in model formulation, in the form of latent variables. In this kind of model, a *n x s* multivariate dataset **_Y_**, containing the abundance of species *j* at plot *i* can be decomposed into a  *n x d* Factor Matrix **_F_**, containing the score of factor *f* for each plot *i* and a *s x d* loading matrix **_L_** containing the coefficient linking each species to each factor. The multiplication is computed using the transpose of **_L_**.
 
 $$ Y \begin{bmatrix} y_{11} & y_{12} & ... & y_{1s} \\ y_{21} & y_{22} & ... & y_{2s} \\\vdots &\vdots &\ddots & \vdots \\ y_{n1} & y_{n2} & ... & y_{ns} \end{bmatrix} = F \begin{bmatrix} f_{11} & f_{12} & ... & f_{1d} \\ f_{21} & f_{22} & ... & f_{2d} \\\vdots &\vdots &\ddots & \vdots \\ f_{n1} & f_{n2} & ... & f_{nd} \end{bmatrix} L' \begin{bmatrix} \lambda_{11} & \lambda_{12} & ... & \lambda_{1s} \\ \lambda_{21} & \lambda_{22} & ... & \lambda_{2s} \\\vdots &\vdots &\ddots & \vdots \\ \lambda_{d1} & \lambda_{d2} & ... & \lambda_{ds} \end{bmatrix} $$
   
-But where the covariance is? We said that the covariance can be decomposed by the response of different variables to common latent factors. The response of variables to the latent factor are the loadings coefficients : we will use them to estimate the covariance between species.To do that, we need to set the variance of factors to a unit scale. This will allow to isolate the variances components of each variables in the loadings, as greatly explained in @Tryfos1998 [(link)](http://www.yorku.ca/ptryfos/f1400.pdf). Thus, the factor scores will be defined by a multivariate Normal distribution with means of 0 and a correlation matrix with unit diagonal.
+But where is the covariance? We said that covariances can be approached by the response of different variables to common latent factors. The response of variables to the latent factor are the loading coefficients : we will use them to estimate the covariances between species.To do that, we need to set the variance of factors to a unit scale. This will allow to isolate the variance of each variables in the loadings and to subsequently compute covariances, as greatly explained in [@Tryfos1998](http://www.yorku.ca/ptryfos/f1400.pdf). Thus, the factor scores will be defined by a multivariate Normal distribution with means of 0 and a correlation matrix with unit diagonal :
 
 $$
 F \sim MultiNormal(0, \Sigma)\\
 diag(\Sigma) = 1
 $$
 
-Under this condition, the *s x s* estimated covariance matrix **_C_** can be obtained by multiplying the loading matrix and the its transpose :
+Under this condition, the *s x s* estimated covariance matrix **_C_** can be obtained by multiplying the loading matrix by its transpose :
 
 $$
 C \begin{bmatrix} c_{11} & c_{12} & ... & c_{1s} \\ c_{21} & c_{22} & ... & c_{2s} \\\vdots &\vdots &\ddots & \vdots \\ c_{s1} & c_{s2} & ... & c_{ss} \end{bmatrix} = L \begin{bmatrix} \lambda_{11} & \lambda_{12} & ... & \lambda_{1d} \\ \lambda_{21} & \lambda_{22} & ... & \lambda_{2d} \\\vdots &\vdots &\ddots & \vdots \\ \lambda_{s1} & \lambda_{s2} & ... & \lambda_{sd} \end{bmatrix} L' \begin{bmatrix} \lambda_{11} & \lambda_{12} & ... & \lambda_{1s} \\ \lambda_{21} & \lambda_{22} & ... & \lambda_{2s} \\\vdots &\vdots &\ddots & \vdots \\ \lambda_{d1} & \lambda_{d2} & ... & \lambda_{ds} \end{bmatrix}
 $$
  
-Now begin the difficulties. In such a model, both variables (factor scores) and coefficients (loadings) are unknown and have to be estimated. This leads to a model which is not identified : multiple points in the parameter space can lead to the same joint probability distribution. In crude words, there will be more than one combination of parameters which will be able to describe equally the observed data. Hopefully, @Farouni2015 gave us the constraints to allow identifiability (see his blog post to obtain original sources, and also [@Stanforum2017; @Forum2015]) :
+Now begin the difficulties. In such a model, both variables (factor scores) and coefficients (loadings) are unknown and have to be estimated. This leads to a model which is not identified : multiple points in the parameter space can lead to the same joint probability distribution. In crude words, there will be more than one combination of parameters which will describe equally the observed data. Hopefully, @Farouni2015 gave us the constraints to allow identifiability (see his blog post to obtain original sources, and also [@Stanforum2017; @Forum2015]) :
 <ul>
   <li>Fix the upper diagonal of L to zero</li>
   <li>Restrain the diagonal of L to be positive</li>
@@ -57,14 +57,14 @@ Now begin the difficulties. In such a model, both variables (factor scores) and 
 The first two constraints will reduce drastically the number of possible solutions, and the second will avoid the algorithm get lost in secondary peaks on the posterior surface.
 
 # The complete model
-This approach of community modelling is known as Joint Species Distributions Models ([@Warton2015; @Hui2016]), and aims to reveal patterns in community structure. To limit the influence of global differences in abundances between plots, we will add a hierarchical intercept for each sites. Thoses parameters will be distributed normally with estimated standard-deviation. Because we will deal with abundances as count data, we will describe data as following a poisson distribution. The final model is thus defined as follow :
+This approach of community modelling is known as Joint Species Distributions Models [@Warton2015; @Hui2016], and aims to reveal patterns in community structure. To limit the influence of global differences in abundances between plots, we will add a hierarchical intercept for each sites. Thoses parameters will be distributed normally with estimated standard-deviation. Because we will deal with abundances as count data, we will describe data as following a poisson distribution. The final model is thus defined as follow :
 
 $$Y_{ij} \sim Poisson(\mu_{ij})\\
 \mu_{ij} = \alpha + \delta_i + \Upsilon_{ij}\\
 \Upsilon = FL'\\
 \delta_i \sim normal(0, \sigma_d) $$
 
-Concerning priors for loadings, I have tried a lot of different distributions and parameters, hierarchical or not (gamma, student-t with 3 degre of freedom, normal, and even a mix of normal and chi-squared, inspired from the barlett decomposition of the wishart distribution [@Stanforum2018]). However, the solution providing the best results is to use cauchy distribution, as Rick Farouni did [@Farouni2015]. Unlike him, I did not put hierarchical prior on the diagonal loadings because they are only three, but one if using informative priors.
+Concerning priors for loadings, I have tried a lot of different distributions and parameters, hierarchical or not (gamma, student-t with 3 degre of freedom, normal, and even a mix of normal and chi-squared, inspired from the barlett decomposition of the wishart distribution [@Stanforum2018]). However, the solution providing the best results is to use cauchy distribution, as Rick Farouni did [@Farouni2015]. Unlike him, I did not put hierarchical prior on the diagonal loadings because they are only three, but one could if using suffficiently informative priors. The complete set of priors are as follow, *Vech* being the half-vectorization operator, selecting the lower diagonal loadings of loading matrices.
 
 $$\begin{aligned}
 \alpha \sim student(3,0,5)\\
@@ -84,10 +84,10 @@ F \sim MultiNormal(0, \Sigma)\\
 Let's simulate some "ideal" data, based on three factors, 10 species and 100 plots. The steps are :
 <ul>
   <li>Sample factor scores from a multivarial normal, with unit diagonal and correlation matrix sampled from a LKJ distribution (eta = 1 give an equal probability between -1 and 1, see ?rlkjcorr or [here](http://www.psychstatistics.com/2014/12/27/d-lkj-priors/))</li>
-  <li>Sample loadings from a multivariate normal, with correlation matrix sampled from an LKJ distributin (eta = 0.5 concentrate the masse around correlations of -1 and 1)</li>
+  <li>Sample loadings from a multivariate normal, with correlation matrix sampled from an LKJ distribution (eta = 0.5 concentrates the density around correlations of -1 and 1)</li>
   <li>Set the constraints on loadings : zero on upper diagonal and positive diagonal</li>
   <li>Sample an intercept</li>
-  <li>Sample the deviation for each plot</li>
+  <li>Sample a deviation for each plot</li>
   <li>Compute the mean abundance of each species at each plot and simulate observed abundance by sampling from a poisson distribution</li>
 </ul>
 
@@ -206,7 +206,7 @@ transformed data{
   }
 }
 ```
-In the parameter part, we define every parameter which will be sampled. Hyperparameters are the one describing hierarchical distributions, such as the standard deviation of the row deviations.
+In the parameter part, we define every parameter which will be sampled. Hyperparameters are the ones describing hierarchical distributions, such as the standard-deviation of the row deviations.
 ```
 parameters{
   //Parameters
@@ -272,7 +272,7 @@ model{
   alpha ~ student_t(3,0,5); //Weakly informative prior for global intercept
   d0 ~ normal(0,sigma_d); //Regularizing prior for row deviations
   L_diag ~ cauchy(0,2.5); //Weakly informative prior for diagonal loadings
-  L_lower ~ cauchy(mu_low, tau_low); //Weakly informative prior for lower diag loadings
+  L_lower ~ cauchy(mu_low, tau_low); //Hierarchical prior for lower diag loadings
   Rho ~ lkj_corr_cholesky(1); //Uninformative prior for Rho
   
   for(i in 1:N){	
@@ -281,7 +281,7 @@ model{
   }
 }
 ```
-The generated quantity blocks will be usefull to compute the estimated covariance matrix and correlation matrix, compute the log-likelihood for each observation (potentiatlly usefull for model diagnotics and comparison) and generate stochastic predicted values.
+The generated quantity block will be usefull to compute the estimated covariance matrix and correlation matrix, compute the log-likelihood for each observation (required for model diagnotics and comparison) and generate stochastic predicted values.
 ```
 generated quantities{
   matrix[S,S] cov_L;
@@ -325,7 +325,7 @@ BFS <- stan("Poisson_BFS_reparam.stan", data = D_stan,
 ```
 Loadings effective sample sizes are not great, but rhats are corrects for all loadings (<1.2)
 ```{r include=FALSE}
-BFS <- readRDS("BFS.Rdata")
+BFS <- readRDS("/home/lucasd/GoogleDrive/Biologie/00_Statistique/00_Blog/180509_LVM/BFS.Rdata")
 ```
 ```{r, echo = T}
 print(BFS, pars = "L")
@@ -394,7 +394,7 @@ plot(mean_FS[,3] ~ mean_FS[,1]);text(mean_L[,3] ~ mean_L[,1],
 
 ```
 
-Here is the code for the reparametrized version of the model, allowing really more efficient posterior sampling. Hierarchical and cauchy priors are not declared in the model part, but are computed in the transformed parameter block, by transforming samples from easy-to-work-with distributions.
+Here is the code for the reparametrized version of the model, allowing really more efficient posterior sampling. Hierarchical and cauchy priors are not declared in the model part, but are computed in the transformed parameter block, by transforming heavy tailed distributions to easy-to-sample distributions.
 
 ```{stan, output.var = "Poisson_BFM_reparam"}
 data{
@@ -514,6 +514,6 @@ generated quantities{
 }
 ```
 # Acknowledgement
-Many thanks to Guillaume Blanchet (<https://github.com/guiblanchet>) for the time passed to explain the subtilities of his analysis to me, and Marco Rodriguez for the always enriching discussions! (<https://oraprdnt.uqtr.uquebec.ca/pls/public/gscw030?owa_no_site=5092>)
+Many thanks to Vincent Maire, who always supports me in my fancies, [Guillaume Blanchet](https://github.com/guiblanchet) for the time passed to explain the subtilities of his analysis to me, and [Marco Rodriguez](https://oraprdnt.uqtr.uquebec.ca/pls/public/gscw030?owa_no_site=5092) for the always enriching discussions! 
 
 # References
